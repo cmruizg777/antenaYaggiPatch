@@ -469,6 +469,137 @@ Array("NAME:GND", _
 "Objects:=", _
 Array("gnd"))
 
+oEditor.CreateRectangle _
+Array("NAME:RectangleParameters", _
+"IsCovered:=", true, _
+"XStart:=", "0.000000mm", _
+"YStart:=", "-0.500000mm", _
+"ZStart:=", "-0.500000mm", _
+"Width:=", "1.000000mm", _
+"Height:=", "0.500000mm", _
+"WhichAxis:=", "X"), _
+Array("NAME:Attributes", _
+"Name:=", "port", _
+"Flags:=", "", _
+"Color:=", "(132 132 193)", _
+"Transparency:=", 5.000000e-01, _
+"PartCoordinateSystem:=", "Global", _
+"MaterialName:=", "vacuum", _
+"SolveInside:=", true)
+
+oEditor.ChangeProperty _
+	Array("NAME:AllTabs", _
+		Array("NAME:Geometry3DAttributeTab", _
+			Array("NAME:PropServers", "port"), _
+			Array("NAME:ChangedProps",  _
+				Array("NAME:Color", "R:=", 235, "G:=", 10, "B:=", 10) _
+			) _
+		) _
+	) 
+
+oEditor.ChangeProperty _
+Array("NAME:AllTabs", _
+	Array("NAME:Geometry3DAttributeTab", _
+		Array("NAME:PropServers","port"), _
+		Array("NAME:ChangedProps", _
+			Array("NAME:Transparent", "Value:=",  0.000000) _
+			) _
+		) _
+	)
+
+Set oModule = oDesign.GetModule("BoundarySetup")
+oModule.AssignLumpedPort _
+Array("NAME:puerto", _
+      Array("NAME:Modes", _
+             Array("NAME:Mode1", _
+                   "ModeNum:=", 1, _
+                   "UseIntLine:=", true, _
+                   Array("NAME:IntLine", _
+                          "Start:=", Array("0.000000mm", "0.000000mm", "-0.250000mm"), _
+                          "End:=",   Array("0.000000mm", "0.000000mm", "0.000000mm") _
+                         ), _
+                   "CharImp:=", "Zpi" _
+                   ) _
+            ), _
+      "Resistance:=", "50.000000Ohm", _
+      "Reactance:=", "0.000000Ohm", _
+      "Objects:=", Array("port") _
+      )
+
+oEditor.CreateBox _
+Array("NAME:BoxParameters", _
+"XPosition:=", "-1.000000mm", _
+"YPosition:=", "-11.000000mm", _
+"ZPosition:=", "-1.000000mm", _
+"XSize:=", "24.550000mm", _
+"YSize:=", "22.000000mm", _
+"ZSize:=", "10.000000mm"), _
+Array("NAME:Attributes", _
+"Name:=", "box2", _
+"Flags:=", "", _
+"Color:=", "(132 132 193)", _
+"Transparency:=", 0.75, _
+"PartCoordinateSystem:=", "Global", _
+"MaterialName:=", "vacuum", _
+"SolveInside:=", true)
+
+oEditor.ChangeProperty _
+Array("NAME:AllTabs", _
+	Array("NAME:Geometry3DAttributeTab", _
+		Array("NAME:PropServers","box2"), _
+		Array("NAME:ChangedProps", _
+			Array("NAME:Transparent", "Value:=",  0.950000) _
+			) _
+		) _
+	)
+Set oModule = oDesign.GetModule("BoundarySetup")
+oModule.AssignRadiation _
+Array("NAME:rad1", _
+"Objects:=", Array("box2"))
+
+Set oModule = oDesign.GetModule("AnalysisSetup")
+oModule.InsertSetup "HfssDriven", _
+Array("NAME:yaggi_uda", _
+"Frequency:=", "5.000000GHz", _
+"PortsOnly:=", false, _
+"maxDeltaS:=", 0.020000, _
+"UseMatrixConv:=", false, _
+"MaximumPasses:=", 25, _
+"MinimumPasses:=", 1, _
+"MinimumConvergedPasses:=", 1, _
+"PercentRefinement:=", 20, _
+"ReducedSolutionBasis:=", false, _
+"DoLambdaRefine:=", true, _
+"DoMaterialLambda:=", true, _
+"Target:=", 0.3333, _
+"PortAccuracy:=", 2, _
+"SetPortMinMaxTri:=", false)
+
+Set oModule = oDesign.GetModule("AnalysisSetup")
+oModule.InsertDrivenSweep _
+"yaggi_uda", _
+Array("NAME:SWEEP1", _
+"Type:=", "Interpolating", _
+"InterpTolerance:=", 0.500000, _
+"InterpMaxSolns:=", 101, _
+"SetupType:=", "LinearCount", _
+"StartFreq:=", "3.000000GHz", _
+"StopFreq:=", "7.000000GHz", _
+"Count:=", 101, _
+"SaveFields:=", false, _
+"ExtrapToDC:=", false)
+
+Set oModule = oDesign.GetModule("ReportSetup")
+oModule.CreateReport "Report 1", _
+"Modal S Parameter", _
+"Rectangular Plot", _
+"yaggi_uda : Sweep1", _
+Array("Domain:=", "Sweep"), _
+Array("Freq:=", Array("All")), _
+Array("X Component:=", "Freq", _
+"Y Component:=", Array("db(S(puerto,puerto))")), _
+Array()
+
 oProject.SaveAs _
     "D:\MATLAB\Oscar\Yaggi\yaggi.vbs.aedt", _
     true

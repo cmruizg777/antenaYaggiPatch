@@ -50,7 +50,8 @@ Wt0 = 1;
 
 material = 'FR4_epoxy';
 units = 'mm';
-
+% el ancho del puerto
+portW = Wt0;
 
 %% FEED
 
@@ -63,7 +64,6 @@ hfssRectangle(fid, 'r2', 'Z', [Lt0 -Wt2/2 0] ,  Lt2, Wt2, units);
 %% Line 1
 
 hfssRectangle(fid, 'r3', 'Z', [Lt0+Lt2 -Wt1/2 0] ,  Lt1, Wt1, units);
-
 
 %% transformador
 
@@ -161,24 +161,24 @@ hfssAssignPE(fid, 'GND', {'gnd'}, 'false');
 
 %% PORT
 
-%
-%hfssSetColor(fid, 'r7', [235 10 10]);
-%hfssSetTransparency(fid, {'r7'}, 0);
-%hfssAssignLumpedPort(fid, 'puerto', 'r7', [(5*w2-L)/2, w2+w3/2, -s/2], [(5*w2-L)/2, w2+w3/2, 0], units, 50, 0);
+hfssRectangle(fid, 'port', 'X', [0 -Wt0/2 -s] , Wt0 , s , units);
+hfssSetColor(fid, 'port', [235 10 10]);
+hfssSetTransparency(fid, {'port'}, 0);
+hfssAssignLumpedPort(fid, 'puerto', 'port', [0, 0, -s/2], [0, 0, 0], units, 50, 0);
 
 %% Radiation
 
-%hfssBox(fid, 'box2', [-2*s-L/2 , -2*s-W/2 , -2*s ], [L+4*s, W+4*s, s*20 ],units);
-%hfssSetTransparency(fid, {'box2'}, 0.95);
-%hfssAssignRadiation(fid, 'rad1', 'box2')
+hfssBox(fid, 'box2', [-2*s , -2*s-W/2 , -2*s ], [L + 4*s, W+4*s, s*20 ],units);
+hfssSetTransparency(fid, {'box2'}, 0.95);
+hfssAssignRadiation(fid, 'rad1', 'box2')
 
 %% insertar solución, crear reporte y guardar el proyecto
 
-%hfssInsertSolution(fid, 'nfc', 0.013);
-%hfssInterpolatingSweep(fid, 'SWEEP1', 'nfc', 0.001, 0.04, 101);
-%hfssCreateReport(fid, 'Report 1', 1, 1, 'nfc', 'Sweep1',...
-%                       [], 'Sweep', {'Freq'}, {'Freq',...
-%                       'db(S(puerto,puerto))'});
+hfssInsertSolution(fid, 'yaggi_uda', 5);
+hfssInterpolatingSweep(fid, 'SWEEP1', 'yaggi_uda', 3, 7, 101);
+hfssCreateReport(fid, 'Report 1', 1, 1, 'yaggi_uda', 'Sweep1',...
+                       [], 'Sweep', {'Freq'}, {'Freq',...
+                       'db(S(puerto,puerto))'});
 directory_content = dir; % contains everything of the current directory
 path = directory_content(1).folder; % returns the path that is currently open
 hfssSaveProject(fid, strcat(path,'\',tmpScriptFile,'.aedt'), true); % Guarda el HFSS (CAMBIAR).
